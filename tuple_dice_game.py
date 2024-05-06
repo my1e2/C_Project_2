@@ -12,23 +12,27 @@ def roll_dice():
 def tuple_out(dice):
     return len(set(dice)) == 1
 
-def manage_scores(scores, winner):
-    if winner:
-        print(f"{winner} won the game!!!")
-    else:
-        print("Current Scores:")
-        for player, score in scores.items():
-            print(f"{player}: {score}")
+def display_scores(scores):
+    print("Current Scores:")
+    for player, score in scores.items():
+        print(f"{player}: {score}")
+
+def record_scores(scores, winner):
+    print(f"{winner} wins the game!")
 
 def play_round(player):
     print(f"\n{player}'s turn!")
-    dice = roll_dice()
     score = 0
+    dice = roll_dice()
     print(f"Roll: {dice}")
+    
+    score += sum(dice)
 
     while True: 
         if tuple_out(dice):
-            print("You tupled out!!! Your score on this turn is zero......")
+            print(f"You tupled out!!! You rolled {dice} Your score on this turn is zero......")
+            score = 0
+            return score 
         
         fixed_dice = []
         for die in dice:
@@ -37,17 +41,40 @@ def play_round(player):
             else:
                 fixed_dice.append(0)
         print(f"Fixed dice: {fixed_dice}")
+        
 
         choice = input("Do you want to reroll the dice? (yes/no): ").lower()
         if choice == "no":
-            score += sum(die for die in dice if die != 0)
+            for die in range(len(dice)):
+                if dice[die] not in fixed_dice:  # Check if the die is not fixed
+                    score += dice[die]  # Add the value of the die to the score
             break
         elif choice == "yes":
             for die in range(len(dice)):
                 if dice[die] not in fixed_dice:
                     dice[die] = random.randint(1,6)
+                    
+            print(f"Roll: {dice}")
     print(f"Score: {score}")
     return score
-    
-    
+
+def play_game(players, max_score = 50, max_rounds = 5):
+    scores = {player: 0 for player in players}
+    round_counter = 0
+
+    while round_counter < max_rounds:
+        round_counter += 1
+        print(f"\nRound {round_counter}")
+        for player in players:
+            score = play_round(player)
+            scores[player] += score
+            if scores[player] >= max_score:
+                record_scores(scores, player)
+                return 
+        display_scores(scores)
+
+# Actual functionality of the game
+players = ["Player 1", "Player 2"]
+play_game(players)
+            
 
